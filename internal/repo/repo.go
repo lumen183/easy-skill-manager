@@ -17,15 +17,12 @@ import (
 // an error is returned.
 // Add adds a repository entry. If dryRun is true no changes are persisted
 // and the function only prints the actions that would be taken.
-func Add(name, p, style string, dryRun bool) error {
+func Add(name, p string, dryRun bool) error {
 	if name == "" {
 		return errors.New("repo name is required")
 	}
 	if p == "" {
 		return errors.New("path is required")
-	}
-	if style == "" {
-		style = "opencode"
 	}
 	abs, err := filepath.Abs(p)
 	if err != nil {
@@ -47,10 +44,10 @@ func Add(name, p, style string, dryRun bool) error {
 		return fmt.Errorf("repo %q already exists", name)
 	}
 	if dryRun {
-		fmt.Printf("Dry-run: would add repo %q -> %s with style %s\n", name, abs, style)
+		fmt.Printf("Dry-run: would add repo %q -> %s\n", name, abs)
 		return nil
 	}
-	cfg.Repos[name] = config.Repo{Path: abs, CreatedAt: time.Now().Format(time.RFC3339), Style: style}
+	cfg.Repos[name] = config.Repo{Path: abs, CreatedAt: time.Now().Format(time.RFC3339)}
 	return config.Save(cfg)
 }
 

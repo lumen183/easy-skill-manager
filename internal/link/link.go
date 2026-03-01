@@ -13,15 +13,19 @@ import (
 // repoName: name of repository as stored in config
 // skillName: directory or file name inside the repository
 // targetDir: where to create the symlink; when empty use current working directory
+// style: style for the link path, default "opencode"
 // dryRun: when true, only print what would be done
 // Link creates a symlink for a skill from a named repo into targetDir (or cwd when empty).
 // It supports dryRun mode where no filesystem changes or config saves are performed.
-func Link(repoName, skillName, targetDir string, dryRun bool) error {
+func Link(repoName, skillName, targetDir, style string, dryRun bool) error {
 	if repoName == "" {
 		return errors.New("repo name is required")
 	}
 	if skillName == "" {
 		return errors.New("skill name is required")
+	}
+	if style == "" {
+		style = "opencode"
 	}
 
 	cfg, err := config.Load()
@@ -47,10 +51,6 @@ func Link(repoName, skillName, targetDir string, dryRun bool) error {
 		wd, err := os.Getwd()
 		if err != nil {
 			return fmt.Errorf("failed to get working dir: %w", err)
-		}
-		style := r.Style
-		if style == "" {
-			style = "opencode"
 		}
 		targetDir = filepath.Join(wd, "."+style, "skills")
 	}

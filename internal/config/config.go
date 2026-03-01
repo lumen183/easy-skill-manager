@@ -9,15 +9,15 @@ import (
 
 // Config represents the top-level configuration file structure.
 type Config struct {
-	Version string          `json:"version"`
-	Repos   map[string]Repo `json:"repos"`
+	Version      string          `json:"version"`
+	DefaultStyle string          `json:"default_style,omitempty"`
+	Repos        map[string]Repo `json:"repos"`
 }
 
 // Repo describes a repository entry.
 type Repo struct {
 	Path      string `json:"path"`
 	CreatedAt string `json:"created_at"`
-	Style     string `json:"style,omitempty"`
 }
 
 // getHomeDir is a thin wrapper around os.UserHomeDir so callers can
@@ -73,7 +73,7 @@ func Load() (*Config, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			def := &Config{Version: "1.0", Repos: map[string]Repo{}}
+			def := &Config{Version: "1.0", DefaultStyle: "opencode", Repos: map[string]Repo{}}
 			// Save default to disk so subsequent loads read it
 			if serr := Save(def); serr != nil {
 				return nil, serr
@@ -100,6 +100,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.Version == "" {
 		cfg.Version = "1.0"
+	}
+	if cfg.DefaultStyle == "" {
+		cfg.DefaultStyle = "opencode"
 	}
 	return &cfg, nil
 }
