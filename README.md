@@ -6,11 +6,13 @@ A lightweight CLI tool to manage and symlink your local skill repositories acros
 
 - **Repository Management**: Register local directories as "skill repositories".
 - **Skill Linking**: Create symlinks from repositories to any target directory (e.g., project workspaces).
+- **Style-Based Linking**: Use customizable styles to organize symlinks (default: `.opencode/skills/`).
 - **Safe Moving**: Move local directories into a repository while automatically leaving a symlink behind.
 - **Git Awareness**: Automatically detects and leaves `.git` directories in their original location during `move` (customizable).
 - **Conflict Detection**: Refuses to overwrite existing files or symlinks unless forced.
 - **Dry Run Support**: Preview filesystem changes with `--dry-run` on all modifying commands.
 - **Status Reporting**: Check the health and source of symlinks in your workspace.
+- **Configuration Management**: Set default styles and other preferences.
 
 ## Installation
 
@@ -47,8 +49,16 @@ Move a directory to the vault and keep it accessible via symlink:
 ```bash
 ./skillmgr link my-skills ui/button --target ./src/components/
 ```
+*Note: By default, links are created in `./.opencode/skills/` relative to the current directory. You can customize the style.*
 
-### 4. Check Symlink Status
+### 4. Customize Default Style
+Set your preferred style for organizing links:
+```bash
+./skillmgr config set-default-style myproject
+```
+Now links will be created in `./.myproject/skills/`.
+
+### 5. Check Symlink Status
 ```bash
 ./skillmgr status
 ```
@@ -58,13 +68,17 @@ Move a directory to the vault and keep it accessible via symlink:
 - `repo add <name> <path>`: Register a new skill repository.
 - `repo list`: Show all registered repositories.
 - `repo remove <name>`: Unregister a repository.
-- `link <repo> <skill> [--target <dir>]`: Create a symlink to a skill.
+- `link <repo> <skill> [--target <dir>] [--style <style>]`: Create a symlink to a skill. Uses default style if not specified.
 - `move <src> <repo>[:<dest>]`: Move a directory to a repo and link it back.
 - `status`: Check the validity of symlinks in the current directory.
+- `config set-default-style <style>`: Set the default style for links (default: opencode).
+- `config get-default-style`: Show the current default style.
 
 ## Configuration
 
 Settings are stored in `~/.skillmgr/config.json`. The directory and file are automatically created on first run.
+
+- `default_style`: The default style for organizing symlinks (default: "opencode"). Links are created in `./.{style}/skills/`.
 
 ## Testing Your Installation
 
@@ -77,6 +91,7 @@ To verify `skillmgr` is working correctly on your machine:
    ./skillmgr move ./test-src my-repo --dry-run
    ```
 3. **Status Check**: Run `./skillmgr status` in a directory containing symlinks to see them mapped to your repos.
+4. **Config Test**: `./skillmgr config get-default-style` should show "opencode".
 
 ## License
 
