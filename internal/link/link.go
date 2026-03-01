@@ -48,17 +48,25 @@ func Link(repoName, skillName, targetDir string, dryRun bool) error {
 		if err != nil {
 			return fmt.Errorf("failed to get working dir: %w", err)
 		}
-		targetDir = wd
+		style := r.Style
+		if style == "" {
+			style = "opencode"
+		}
+		targetDir = filepath.Join(wd, "."+style, "skills")
 	}
 	// ensure targetDir exists and is directory
 	tfi, err := os.Stat(targetDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("target directory %s does not exist", targetDir)
+			if !dryRun {
+				if err := os.MkdirAll(targetDir, 0o755); err != nil {
+					return fmt.Errorf("failed to create target directory %s: %w", targetDir, err)
+				}
+			}
+		} else {
+			return fmt.Errorf("failed to stat target dir %s: %w", targetDir, err)
 		}
-		return fmt.Errorf("failed to stat target dir %s: %w", targetDir, err)
-	}
-	if !tfi.IsDir() {
+	} else if !tfi.IsDir() {
 		return fmt.Errorf("target %s is not a directory", targetDir)
 	}
 
@@ -92,10 +100,6 @@ func Link(repoName, skillName, targetDir string, dryRun bool) error {
 	}
 
 	// perform symlink creation
-	if dryRun {
-		fmt.Printf("Dry-run: would create symlink %s -> %s\n", absTarget, absSource)
-		return nil
-	}
 	if err := os.Symlink(absSource, absTarget); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
 	}

@@ -17,6 +17,7 @@ type Config struct {
 type Repo struct {
 	Path      string `json:"path"`
 	CreatedAt string `json:"created_at"`
+	Style     string `json:"style,omitempty"`
 }
 
 // getHomeDir is a thin wrapper around os.UserHomeDir so callers can

@@ -5,8 +5,9 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/spf13/cobra"
 	"my_skill_manager/internal/repo"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -22,12 +23,14 @@ func init() {
 		Args:  cobra.ExactArgs(2),
 	}
 	var addDryRun bool
+	var addStyle string
 	add.RunE = func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		path := args[1]
-		return repo.Add(name, path, addDryRun)
+		return repo.Add(name, path, addStyle, addDryRun)
 	}
 	add.Flags().BoolVar(&addDryRun, "dry-run", false, "Show actions without making changes")
+	add.Flags().StringVar(&addStyle, "style", "opencode", "Style for the repository")
 
 	list := &cobra.Command{
 		Use:   "list",
@@ -38,10 +41,10 @@ func init() {
 				return err
 			}
 			w := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintln(w, "NAME\tPATH\tCREATED")
+			fmt.Fprintln(w, "NAME\tPATH\tSTYLE\tCREATED")
 			for _, n := range names {
 				r := repos[n]
-				fmt.Fprintf(w, "%s\t%s\t%s\n", n, r.Path, r.CreatedAt)
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", n, r.Path, r.Style, r.CreatedAt)
 			}
 			return w.Flush()
 		},

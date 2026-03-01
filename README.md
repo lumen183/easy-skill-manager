@@ -1,6 +1,6 @@
 # Skill Manager (skillmgr)
 
-A powerful Go-based CLI tool for managing local skill repositories and workspaces using symbolic links.
+A lightweight CLI tool to manage and symlink your local skill repositories across projects efficiently
 
 ## Features
 
