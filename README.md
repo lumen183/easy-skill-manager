@@ -68,6 +68,7 @@ Now links will be created in `./.myproject/skills/`.
 - `repo add <name> <path>`: Register a new skill repository.
 - `repo list`: Show all registered repositories.
 - `repo remove <name>`: Unregister a repository.
+- `repo show <name>`: show all skills in the repository.
 - `link <repo> <skill> [--target <dir>] [--style <style>]`: Create a symlink to a skill. Uses default style if not specified.
 - `move <src> <repo>[:<dest>]`: Move a directory to a repo and link it back.
 - `status`: Check the validity of symlinks in the current directory.
