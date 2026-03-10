@@ -6,6 +6,7 @@ import (
 	"text/tabwriter"
 
 	"my_skill_manager/internal/repo"
+	"my_skill_manager/internal/tui"
 
 	"github.com/spf13/cobra"
 )
@@ -59,6 +60,28 @@ func init() {
 	}
 	remove.Flags().BoolVar(&removeDryRun, "dry-run", false, "Show actions without making changes")
 
-	repoCmd.AddCommand(add, list, remove)
+	show := &cobra.Command{
+		Use:   "show <name>",
+		Short: "Show skills in a repository",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name := args[0]
+			_, repos, err := repo.List()
+			if err != nil {
+				return err
+			}
+			r, ok := repos[name]
+			if !ok {
+				return fmt.Errorf("repository %s not found", name)
+			}
+			skills, err := repo.ListSkills(r.Path)
+			if err != nil {
+				return err
+			}
+			return tui.RunSkillsTUI(name, skills)
+		},
+	}
+
+	repoCmd.AddCommand(add, list, remove, show)
 	addCmd(repoCmd)
 }
