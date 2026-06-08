@@ -15,6 +15,7 @@ func init() {
 	var target string
 	var dryRun bool
 	var style string
+	var copyFlag bool
 
 	linkCmd := &cobra.Command{
 		Use:   "link <repo> <skill-name>",
@@ -53,7 +54,7 @@ func init() {
 				}
 				style = cfg.DefaultStyle
 			}
-			if err := link.Link(repo, skillName, target, style, dryRun); err != nil {
+			if err := link.Link(repo, skillName, target, style, dryRun, copyFlag); err != nil {
 				return err
 			}
 			return nil
@@ -62,6 +63,7 @@ func init() {
 	linkCmd.Flags().StringVar(&target, "target", "", "Target directory to place the symlink (default: cwd)")
 	linkCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be done without making changes")
 	linkCmd.Flags().StringVar(&style, "style", "", "Style for the link path (default: from config)")
+	linkCmd.Flags().BoolVar(&copyFlag, "copy", false, "Copy the skill instead of creating a symlink")
 
 	addCmd(linkCmd)
 }

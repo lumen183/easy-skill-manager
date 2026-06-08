@@ -5,8 +5,8 @@ A lightweight CLI tool to manage and symlink your local skill repositories acros
 ## Features
 
 - **Repository Management**: Register local directories as "skill repositories".
-- **Skill Linking**: Create symlinks from repositories to any target directory (e.g., project workspaces).
-- **Style-Based Linking**: Use customizable styles to organize symlinks (default: `.opencode/skills/`).
+- **Skill Linking**: Create symlinks (or copies with `--copy`) from repositories to any target directory (e.g., project workspaces).
+- **Style-Based Linking**: Use customizable styles to organize symlinks (default: `.opencode/skills/`). Supports `--style claude` for Claude Code integration.
 - **Safe Moving**: Move local directories into a repository while automatically leaving a symlink behind.
 - **Git Awareness**: Automatically detects and leaves `.git` directories in their original location during `move` (customizable).
 - **Conflict Detection**: Refuses to overwrite existing files or symlinks unless forced.
@@ -63,13 +63,27 @@ Now links will be created in `./.myproject/skills/`.
 ./skillmgr status
 ```
 
+### Using with Claude Code
+
+To use skills with [Claude Code](https://claude.ai/code), link them with the `claude` style:
+
+```bash
+./skillmgr link my-skills my-skill --style claude
+```
+
+This creates the link under `.claude/skills/`, which Claude Code automatically discovers. You can also set `claude` as the default style:
+
+```bash
+./skillmgr config set-default-style claude
+```
+
 ## Commands
 
 - `repo add <name> <path>`: Register a new skill repository.
 - `repo list`: Show all registered repositories.
 - `repo remove <name>`: Unregister a repository.
 - `repo show <name>`: show all skills in the repository.
-- `link <repo> <skill> [--target <dir>] [--style <style>]`: Create a symlink to a skill. Uses default style if not specified.
+- `link <repo> <skill> [--target <dir>] [--style <style>] [--copy]`: Create a symlink (or copy with `--copy`) to a skill. Uses default style if not specified.
 - `move <src> <repo>[:<dest>]`: Move a directory to a repo and link it back.
 - `status`: Check the validity of symlinks in the current directory.
 - `config set-default-style <style>`: Set the default style for links (default: opencode).

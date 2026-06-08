@@ -3,6 +3,7 @@ package link
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -17,7 +18,7 @@ import (
 // dryRun: when true, only print what would be done
 // Link creates a symlink for a skill from a named repo into targetDir (or cwd when empty).
 // It supports dryRun mode where no filesystem changes or config saves are performed.
-func Link(repoName, skillName, targetDir, style string, dryRun bool) error {
+func Link(repoName, skillName, targetDir, style string, dryRun bool, copy bool) error {
 	if repoName == "" {
 		return errors.New("repo name is required")
 	}
@@ -89,8 +90,11 @@ func Link(repoName, skillName, targetDir, style string, dryRun bool) error {
 	}
 
 	if dryRun {
-		fmt.Printf("Dry-run: will create symlink from %s to %s\n", absSource, absTarget)
-		// also print if source is file or dir for clarity
+		if copy {
+			fmt.Printf("Dry-run: will copy from %s to %s\n", absSource, absTarget)
+		} else {
+			fmt.Printf("Dry-run: will create symlink from %s to %s\n", absSource, absTarget)
+		}
 		if sfi.IsDir() {
 			fmt.Printf("Source is directory\n")
 		} else {
@@ -99,10 +103,60 @@ func Link(repoName, skillName, targetDir, style string, dryRun bool) error {
 		return nil
 	}
 
+	if copy {
+		if err := copyPath(absSource, absTarget); err != nil {
+			return fmt.Errorf("failed to copy: %w", err)
+		}
+		fmt.Printf("Copied %s to %s\n", absSource, absTarget)
+		return nil
+	}
+
 	// perform symlink creation
 	if err := os.Symlink(absSource, absTarget); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
 	}
 	fmt.Printf("Created symlink %s -> %s\n", absTarget, absSource)
+	return nil
+}
+
+// copyPath copies files or directories from src to dst recursively.
+func copyPath(src, dst string) error {
+	si, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if si.IsDir() {
+		if err := os.MkdirAll(dst, 0o755); err != nil {
+			return err
+		}
+		entries, err := os.ReadDir(src)
+		if err != nil {
+			return err
+		}
+		for _, e := range entries {
+			s := filepath.Join(src, e.Name())
+			d := filepath.Join(dst, e.Name())
+			if err := copyPath(s, d); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	// file copy
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	if _, err := io.Copy(out, in); err != nil {
+		return err
+	}
+	// try to copy mode
+	_ = os.Chmod(dst, si.Mode())
 	return nil
 }
